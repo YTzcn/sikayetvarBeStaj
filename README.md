@@ -2,27 +2,31 @@
 
 ## OpenAI Sohbet Entegrasyonu
 
-`com.sikayetvar.beStaj.ai` paketi, OpenAI Chat Completions API'si ile temel bir istek/cevap
-akışı kurar.
+DTO, Service ve Global Exception Handling yapılarıyla istenen istek/cevap akışı oluşturuldu.
+Unit testleri yazıldı. Servis yazılırken class bağımlılıklarının azaltılması için interface
+kullanıldı, bu sayede ileride eklenecek yeni AI providerlar için hazırlık yapıldı.
 
-### Kurulum
+Kod `com.sikayetvar.beStaj.ai` paketinde:
+- `dto` – istek/cevap modelleri
+- `service` – `AiChatService` arayüzü ve OpenAI implementasyonu
+- `controller` – `/api/ai/chat` endpoint'i
+- `exception` – global hata yönetimi
+- `config` – OpenAI bağlantı ayarları
 
-1. `src/main/resources/application.properties.example` dosyasını aynı klasörde
-   `application.properties` olarak kopyalayın (bu dosya `.gitignore` içinde olduğu için
-   sürüm kontrolüne dahil edilmez):
-   ```bash
-   cp src/main/resources/application.properties.example src/main/resources/application.properties
-   ```
-2. `OPENAI_API_KEY` adında bir ortam değişkeni tanımlayın (API anahtarını değere girin):
-   ```bash
-   export OPENAI_API_KEY=sk-...
-   ```
-3. Uygulamayı çalıştırın:
-   ```bash
-   ./gradlew bootRun
-   ```
+### Çalıştırmadan önce
 
-### Kullanım
+`application.properties.example` dosyasını `application.properties` olarak kopyala, OpenAI API
+anahtarını `openai.api-key` alanına yaz:
+
+```bash
+cp src/main/resources/application.properties.example src/main/resources/application.properties
+```
+
+### Çalıştırma
+
+```bash
+./gradlew bootRun
+```
 
 ```bash
 curl -X POST http://localhost:8080/api/ai/chat \
@@ -30,13 +34,8 @@ curl -X POST http://localhost:8080/api/ai/chat \
   -d '{"message": "Merhaba, nasılsın?"}'
 ```
 
-Başarılı bir yanıt şu şekilde döner:
+### Testler
 
-```json
-{
-  "reply": "Merhaba! İyiyim, teşekkür ederim..."
-}
+```bash
+./gradlew test
 ```
-
-`openai.model` ve `openai.timeout-seconds` gibi ayarlar `application.properties` dosyasından
-değiştirilebilir.
