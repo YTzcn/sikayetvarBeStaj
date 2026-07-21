@@ -19,4 +19,12 @@ class BookExceptionHandlerTest {
         assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
         assertThat(problemDetail.getDetail()).isEqualTo("Bu ISBN ile kayıtlı bir kitap zaten var.");
     }
+
+    @Test
+    void handleBookNotFoundException_returnsNotFound() {
+        ProblemDetail problemDetail = handler.handleBookNotFoundException(new BookNotFoundException(42L));
+
+        assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(problemDetail.getDetail()).isEqualTo("ID'si 42 olan kitap bulunamadı.");
+    }
 }

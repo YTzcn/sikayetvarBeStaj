@@ -19,4 +19,11 @@ public class BookExceptionHandler {
         problemDetail.setTitle("Kitap kaydedilemedi");
         return problemDetail;
     }
+
+    @ExceptionHandler(BookNotFoundException.class)
+    public ProblemDetail handleBookNotFoundException(BookNotFoundException exception) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        problemDetail.setTitle("Kitap bulunamadı");
+        return problemDetail;
+    }
 }
