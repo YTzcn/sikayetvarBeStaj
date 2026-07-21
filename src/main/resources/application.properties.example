@@ -1,0 +1,7 @@
+spring.application.name=beStaj
+
+
+openai.base-url=https://api.openai.com/v1
+openai.api-key=${OPENAI_API_KEY:}
+openai.model=gpt-4o-mini
+openai.timeout-seconds=30
