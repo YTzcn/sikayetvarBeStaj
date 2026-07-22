@@ -9,6 +9,7 @@ import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
 import com.sikayetvar.beStaj.book.repository.AuthorRepository;
 import com.sikayetvar.beStaj.book.repository.BookRepository;
 import com.sikayetvar.beStaj.common.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,15 +17,11 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
-
-    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository) {
-        this.bookRepository = bookRepository;
-        this.authorRepository = authorRepository;
-    }
 
     @Override
     @Transactional

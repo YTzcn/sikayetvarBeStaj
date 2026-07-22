@@ -7,12 +7,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "authors")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Author {
 
     @Id
@@ -24,9 +27,6 @@ public class Author {
 
     @ManyToMany(mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
-
-    protected Author() {
-    }
 
     public Author(String name) {
         this.name = name;
