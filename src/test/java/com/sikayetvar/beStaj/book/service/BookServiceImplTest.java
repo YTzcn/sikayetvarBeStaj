@@ -102,6 +102,17 @@ class BookServiceImplTest {
     }
 
     @Test
+    void searchBooksByTitle_mapsMatchingBooks() {
+        Book book = new Book("Kürk Mantolu Madonna", "978-0000000002", 1943);
+        when(bookRepository.searchByTitle("mantolu")).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.searchBooksByTitle("mantolu");
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.getFirst().title()).isEqualTo("Kürk Mantolu Madonna");
+    }
+
+    @Test
     void getBookById_returnsMatchingBook() {
         Book book = new Book("Simyacı", "978-0000000003", 1988);
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));

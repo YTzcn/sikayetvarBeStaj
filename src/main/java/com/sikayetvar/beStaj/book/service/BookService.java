@@ -12,6 +12,8 @@ public interface BookService {
 
     List<BookResponse> listBooks();
 
+    List<BookResponse> searchBooksByTitle(String title);
+
     BookResponse getBookById(Long id);
 
     BookResponse updateBook(Long id, BookUpdateRequest request);

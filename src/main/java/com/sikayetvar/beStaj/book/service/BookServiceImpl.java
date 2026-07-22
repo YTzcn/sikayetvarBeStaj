@@ -46,6 +46,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<BookResponse> searchBooksByTitle(String title) {
+        return bookRepository.searchByTitle(title).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public BookResponse getBookById(Long id) {
         return toResponse(findBookOrThrow(id));
     }

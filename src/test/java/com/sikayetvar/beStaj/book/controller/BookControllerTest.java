@@ -68,6 +68,28 @@ class BookControllerTest {
     }
 
     @Test
+    void searchBooks_returnsOkWithMatchingBooks() {
+        BookResponse book = new BookResponse(1L, "1984", "978-0451524935", 1949,
+                List.of(new AuthorResponse(1L, "George Orwell")));
+        when(bookService.searchBooksByTitle("1984")).thenReturn(List.of(book));
+
+        ResponseEntity<List<BookResponse>> actual = controller.searchBooks("1984");
+
+        assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(actual.getBody()).containsExactly(book);
+    }
+
+    @Test
+    void searchBooks_returnsNoContentWhenNoMatch() {
+        when(bookService.searchBooksByTitle("yok")).thenReturn(List.of());
+
+        ResponseEntity<List<BookResponse>> actual = controller.searchBooks("yok");
+
+        assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(actual.getBody()).isNull();
+    }
+
+    @Test
     void getBook_delegatesToServiceAndReturnsResponse() {
         BookResponse expected = new BookResponse(1L, "1984", "978-0451524935", 1949,
                 List.of(new AuthorResponse(1L, "George Orwell")));

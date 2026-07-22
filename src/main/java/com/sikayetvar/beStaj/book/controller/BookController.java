@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +37,12 @@ public class BookController {
     @GetMapping
     public ResponseEntity<List<BookResponse>> listBooks() {
         List<BookResponse> books = bookService.listBooks();
+        return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<BookResponse>> searchBooks(@RequestParam String title) {
+        List<BookResponse> books = bookService.searchBooksByTitle(title);
         return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
     }
 
