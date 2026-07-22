@@ -20,10 +20,10 @@ public class BookExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(BookNotFoundException.class)
-    public ProblemDetail handleBookNotFoundException(BookNotFoundException exception) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
-        problemDetail.setTitle("Kitap bulunamadı");
+    @ExceptionHandler(DuplicateIsbnException.class)
+    public ProblemDetail handleDuplicateIsbnException(DuplicateIsbnException exception) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        problemDetail.setTitle("Kitap kaydedilemedi");
         return problemDetail;
     }
 }

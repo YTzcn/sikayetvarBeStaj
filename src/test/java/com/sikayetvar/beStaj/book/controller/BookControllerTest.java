@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -36,20 +38,32 @@ class BookControllerTest {
                 List.of(new AuthorResponse(1L, "George Orwell")));
         when(bookService.createBook(request)).thenReturn(expected);
 
-        BookResponse actual = controller.createBook(request);
+        ResponseEntity<BookResponse> actual = controller.createBook(request);
 
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(actual.getBody()).isEqualTo(expected);
     }
 
     @Test
-    void listBooks_returnsAllBooksFromService() {
+    void listBooks_returnsOkWithAllBooksFromService() {
         BookResponse book = new BookResponse(1L, "1984", "978-0451524935", 1949,
                 List.of(new AuthorResponse(1L, "George Orwell")));
         when(bookService.listBooks()).thenReturn(List.of(book));
 
-        List<BookResponse> actual = controller.listBooks();
+        ResponseEntity<List<BookResponse>> actual = controller.listBooks();
 
-        assertThat(actual).containsExactly(book);
+        assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(actual.getBody()).containsExactly(book);
+    }
+
+    @Test
+    void listBooks_returnsNoContentWhenEmpty() {
+        when(bookService.listBooks()).thenReturn(List.of());
+
+        ResponseEntity<List<BookResponse>> actual = controller.listBooks();
+
+        assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(actual.getBody()).isNull();
     }
 
     @Test

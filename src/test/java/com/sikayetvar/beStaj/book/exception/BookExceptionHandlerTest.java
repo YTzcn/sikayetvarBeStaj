@@ -21,10 +21,11 @@ class BookExceptionHandlerTest {
     }
 
     @Test
-    void handleBookNotFoundException_returnsNotFound() {
-        ProblemDetail problemDetail = handler.handleBookNotFoundException(new BookNotFoundException(42L));
+    void handleDuplicateIsbnException_returnsConflict() {
+        ProblemDetail problemDetail = handler.handleDuplicateIsbnException(
+                new DuplicateIsbnException("978-0000000001"));
 
-        assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        assertThat(problemDetail.getDetail()).isEqualTo("ID'si 42 olan kitap bulunamadı.");
+        assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+        assertThat(problemDetail.getDetail()).isEqualTo("Bu ISBN ile kayıtlı bir kitap zaten var: 978-0000000001");
     }
 }

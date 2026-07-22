@@ -4,9 +4,10 @@ import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
 import com.sikayetvar.beStaj.book.entity.Author;
 import com.sikayetvar.beStaj.book.entity.Book;
-import com.sikayetvar.beStaj.book.exception.BookNotFoundException;
+import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
 import com.sikayetvar.beStaj.book.repository.AuthorRepository;
 import com.sikayetvar.beStaj.book.repository.BookRepository;
+import com.sikayetvar.beStaj.common.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,7 @@ class BookServiceImplTest {
         BookCreateRequest request = new BookCreateRequest(
                 "İnce Memed", "978-0000000001", 1955, List.of("Yaşar Kemal"));
 
+        when(bookRepository.findByIsbn("978-0000000001")).thenReturn(Optional.empty());
         when(authorRepository.findByNameIgnoreCase("Yaşar Kemal")).thenReturn(Optional.of(existingAuthor));
         when(bookRepository.save(any(Book.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -69,6 +71,20 @@ class BookServiceImplTest {
 
         assertThat(response.authors()).extracting("name").containsExactly("Yeni Yazar");
         verify(authorRepository).save(any(Author.class));
+    }
+
+    @Test
+    void createBook_throwsWhenIsbnAlreadyExists() {
+        BookCreateRequest request = new BookCreateRequest(
+                "İkinci Kopya", "978-0000000001", 2020, List.of("Yazar"));
+
+        when(bookRepository.findByIsbn("978-0000000001"))
+                .thenReturn(Optional.of(new Book("İlk Kopya", "978-0000000001", 2019)));
+
+        assertThatThrownBy(() -> bookService.createBook(request))
+                .isInstanceOf(DuplicateIsbnException.class);
+
+        verify(bookRepository, never()).save(any(Book.class));
     }
 
     @Test
@@ -99,7 +115,7 @@ class BookServiceImplTest {
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookService.getBookById(99L))
-                .isInstanceOf(BookNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -110,6 +126,7 @@ class BookServiceImplTest {
                 "Yeni Başlık", "978-0000000005", 2010, List.of("Yeni Yazar"));
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIsbn("978-0000000005")).thenReturn(Optional.empty());
         when(authorRepository.findByNameIgnoreCase("Yeni Yazar")).thenReturn(Optional.empty());
         when(authorRepository.save(any(Author.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -126,7 +143,21 @@ class BookServiceImplTest {
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookService.updateBook(99L, request))
-                .isInstanceOf(BookNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void updateBook_throwsWhenIsbnBelongsToAnotherBook() {
+        Book book = new Book("Kitap", "978-0000000006", 2000);
+        BookCreateRequest request = new BookCreateRequest(
+                "Kitap", "978-0000000007", 2000, List.of("Yazar"));
+        Book otherBook = new Book("Başka Kitap", "978-0000000007", 2001);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIsbn("978-0000000007")).thenReturn(Optional.of(otherBook));
+
+        assertThatThrownBy(() -> bookService.updateBook(1L, request))
+                .isInstanceOf(DuplicateIsbnException.class);
     }
 
     @Test
@@ -143,6 +174,6 @@ class BookServiceImplTest {
         when(bookRepository.existsById(99L)).thenReturn(false);
 
         assertThatThrownBy(() -> bookService.deleteBook(99L))
-                .isInstanceOf(BookNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 }

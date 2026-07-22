@@ -5,13 +5,15 @@ import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
 import com.sikayetvar.beStaj.book.entity.Author;
 import com.sikayetvar.beStaj.book.entity.Book;
-import com.sikayetvar.beStaj.book.exception.BookNotFoundException;
+import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
 import com.sikayetvar.beStaj.book.repository.AuthorRepository;
 import com.sikayetvar.beStaj.book.repository.BookRepository;
+import com.sikayetvar.beStaj.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -27,6 +29,8 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookResponse createBook(BookCreateRequest request) {
+        requireIsbnAvailable(request.isbn(), null);
+
         Book book = new Book(request.title(), request.isbn(), request.publishedYear());
         request.authorNames().forEach(name -> book.addAuthor(resolveAuthor(name)));
 
@@ -52,6 +56,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookResponse updateBook(Long id, BookCreateRequest request) {
         Book book = findBookOrThrow(id);
+        requireIsbnAvailable(request.isbn(), id);
         book.setTitle(request.title());
         book.setIsbn(request.isbn());
         book.setPublishedYear(request.publishedYear());
@@ -64,13 +69,24 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
-            throw new BookNotFoundException(id);
+            throw new ResourceNotFoundException("kitap", id);
         }
         bookRepository.deleteById(id);
     }
 
     private Book findBookOrThrow(Long id) {
-        return bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        return bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("kitap", id));
+    }
+
+    private void requireIsbnAvailable(String isbn, Long currentBookId) {
+        if (isbn == null) {
+            return;
+        }
+        bookRepository.findByIsbn(isbn)
+                .filter(existing -> currentBookId == null || !Objects.equals(existing.getId(), currentBookId))
+                .ifPresent(existing -> {
+                    throw new DuplicateIsbnException(isbn);
+                });
     }
 
     private Author resolveAuthor(String name) {

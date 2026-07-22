@@ -22,10 +22,10 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(unique = true)
+    @Column(name = "isbn", unique = true)
     private String isbn;
 
     @Column(name = "published_year")
