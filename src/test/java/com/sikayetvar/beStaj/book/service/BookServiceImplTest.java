@@ -2,6 +2,7 @@ package com.sikayetvar.beStaj.book.service;
 
 import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
+import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
 import com.sikayetvar.beStaj.book.entity.Author;
 import com.sikayetvar.beStaj.book.entity.Book;
 import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
@@ -122,7 +123,7 @@ class BookServiceImplTest {
     void updateBook_replacesFieldsAndAuthors() {
         Book book = new Book("Eski Başlık", "978-0000000004", 2000);
         book.addAuthor(new Author("Eski Yazar"));
-        BookCreateRequest request = new BookCreateRequest(
+        BookUpdateRequest request = updateRequest(
                 "Yeni Başlık", "978-0000000005", 2010, List.of("Yeni Yazar"));
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -139,7 +140,7 @@ class BookServiceImplTest {
 
     @Test
     void updateBook_throwsWhenNotFound() {
-        BookCreateRequest request = new BookCreateRequest("Başlık", null, null, List.of("Yazar"));
+        BookUpdateRequest request = updateRequest("Başlık", null, null, List.of("Yazar"));
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookService.updateBook(99L, request))
@@ -149,7 +150,7 @@ class BookServiceImplTest {
     @Test
     void updateBook_throwsWhenIsbnBelongsToAnotherBook() {
         Book book = new Book("Kitap", "978-0000000006", 2000);
-        BookCreateRequest request = new BookCreateRequest(
+        BookUpdateRequest request = updateRequest(
                 "Kitap", "978-0000000007", 2000, List.of("Yazar"));
         Book otherBook = new Book("Başka Kitap", "978-0000000007", 2001);
 
@@ -158,6 +159,16 @@ class BookServiceImplTest {
 
         assertThatThrownBy(() -> bookService.updateBook(1L, request))
                 .isInstanceOf(DuplicateIsbnException.class);
+    }
+
+    private static BookUpdateRequest updateRequest(String title, String isbn, Integer publishedYear,
+                                                     List<String> authorNames) {
+        BookUpdateRequest request = new BookUpdateRequest();
+        request.setTitle(title);
+        request.setIsbn(isbn);
+        request.setPublishedYear(publishedYear);
+        request.setAuthorNames(authorNames);
+        return request;
     }
 
     @Test

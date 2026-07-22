@@ -3,6 +3,7 @@ package com.sikayetvar.beStaj.book.controller;
 import com.sikayetvar.beStaj.book.dto.AuthorResponse;
 import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
+import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
 import com.sikayetvar.beStaj.book.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,11 @@ class BookControllerTest {
 
     @Test
     void updateBook_delegatesToServiceAndReturnsResponse() {
-        BookCreateRequest request = new BookCreateRequest("1984", "978-0451524935", 1949, List.of("George Orwell"));
+        BookUpdateRequest request = new BookUpdateRequest();
+        request.setTitle("1984");
+        request.setIsbn("978-0451524935");
+        request.setPublishedYear(1949);
+        request.setAuthorNames(List.of("George Orwell"));
         BookResponse expected = new BookResponse(1L, "1984", "978-0451524935", 1949,
                 List.of(new AuthorResponse(1L, "George Orwell")));
         when(bookService.updateBook(1L, request)).thenReturn(expected);

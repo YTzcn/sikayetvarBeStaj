@@ -2,6 +2,7 @@ package com.sikayetvar.beStaj.book.service;
 
 import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
+import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface BookService {
 
     BookResponse getBookById(Long id);
 
-    BookResponse updateBook(Long id, BookCreateRequest request);
+    BookResponse updateBook(Long id, BookUpdateRequest request);
 
     void deleteBook(Long id);
 }

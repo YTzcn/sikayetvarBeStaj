@@ -2,6 +2,7 @@ package com.sikayetvar.beStaj.book.controller;
 
 import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
+import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
 import com.sikayetvar.beStaj.book.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public BookResponse updateBook(@PathVariable Long id, @Valid @RequestBody BookCreateRequest request) {
+    public BookResponse updateBook(@PathVariable Long id, @Valid @RequestBody BookUpdateRequest request) {
         return bookService.updateBook(id, request);
     }
 

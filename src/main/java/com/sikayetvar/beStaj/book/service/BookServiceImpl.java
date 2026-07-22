@@ -3,6 +3,7 @@ package com.sikayetvar.beStaj.book.service;
 import com.sikayetvar.beStaj.book.dto.AuthorResponse;
 import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
+import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
 import com.sikayetvar.beStaj.book.entity.Author;
 import com.sikayetvar.beStaj.book.entity.Book;
 import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
@@ -51,14 +52,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookResponse updateBook(Long id, BookCreateRequest request) {
+    public BookResponse updateBook(Long id, BookUpdateRequest request) {
         Book book = findBookOrThrow(id);
-        requireIsbnAvailable(request.isbn(), id);
-        book.setTitle(request.title());
-        book.setIsbn(request.isbn());
-        book.setPublishedYear(request.publishedYear());
+        requireIsbnAvailable(request.getIsbn(), id);
+        book.setTitle(request.getTitle());
+        book.setIsbn(request.getIsbn());
+        book.setPublishedYear(request.getPublishedYear());
         book.getAuthors().clear();
-        request.authorNames().forEach(name -> book.addAuthor(resolveAuthor(name)));
+        request.getAuthorNames().forEach(name -> book.addAuthor(resolveAuthor(name)));
         return toResponse(book);
     }
 
