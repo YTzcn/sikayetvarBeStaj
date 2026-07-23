@@ -11,13 +11,16 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "books")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Book {
 
@@ -26,12 +29,15 @@ public class Book {
     @Column(name = "id")
     private Long id;
 
+    @Setter
     @Column(name = "title", nullable = false)
     private String title;
 
+    @Setter
     @Column(name = "isbn", unique = true)
     private String isbn;
 
+    @Setter
     @Column(name = "published_year")
     private Integer publishedYear;
 
@@ -47,38 +53,6 @@ public class Book {
         this.title = title;
         this.isbn = isbn;
         this.publishedYear = publishedYear;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
-    public Integer getPublishedYear() {
-        return publishedYear;
-    }
-
-    public void setPublishedYear(Integer publishedYear) {
-        this.publishedYear = publishedYear;
-    }
-
-    public Set<Author> getAuthors() {
-        return authors;
     }
 
     public void addAuthor(Author author) {

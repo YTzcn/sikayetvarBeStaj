@@ -1,9 +1,9 @@
 package com.sikayetvar.beStaj.book.controller;
 
 import com.sikayetvar.beStaj.book.dto.AuthorResponse;
-import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
+import com.sikayetvar.beStaj.book.dto.B1BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
-import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
+import com.sikayetvar.beStaj.book.dto.B4BookUpdateRequest;
 import com.sikayetvar.beStaj.book.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +35,7 @@ class BookControllerTest {
 
     @Test
     void createBook_delegatesToServiceAndReturnsResponse() {
-        BookCreateRequest request = new BookCreateRequest("1984", "978-0451524935", 1949, List.of("George Orwell"));
+        B1BookCreateRequest request = new B1BookCreateRequest("1984", "978-0451524935", 1949, List.of("George Orwell"));
         BookResponse expected = new BookResponse(1L, "1984", "978-0451524935", 1949,
                 List.of(new AuthorResponse(1L, "George Orwell")));
         when(bookService.createBook(request)).thenReturn(expected);
@@ -43,6 +44,7 @@ class BookControllerTest {
 
         assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(actual.getBody()).isEqualTo(expected);
+        assertThat(actual.getHeaders().getLocation()).isEqualTo(URI.create("/api/books/1"));
     }
 
     @Test
@@ -115,9 +117,9 @@ class BookControllerTest {
     void filterBooks_returnsOkWithMatchingBooks() {
         BookResponse book = new BookResponse(1L, "1984", "978-0451524935", 1949,
                 List.of(new AuthorResponse(1L, "George Orwell")));
-        when(bookService.filterBooks("1984", 1949)).thenReturn(List.of(book));
+        when(bookService.filterBooks(null, "1984", null, 1949, null)).thenReturn(List.of(book));
 
-        ResponseEntity<List<BookResponse>> actual = controller.filterBooks("1984", 1949);
+        ResponseEntity<List<BookResponse>> actual = controller.filterBooks(null, "1984", null, 1949, null);
 
         assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(actual.getBody()).containsExactly(book);
@@ -125,12 +127,25 @@ class BookControllerTest {
 
     @Test
     void filterBooks_returnsNoContentWhenNoMatch() {
-        when(bookService.filterBooks(null, null)).thenReturn(List.of());
+        when(bookService.filterBooks(null, null, null, null, null)).thenReturn(List.of());
 
-        ResponseEntity<List<BookResponse>> actual = controller.filterBooks(null, null);
+        ResponseEntity<List<BookResponse>> actual = controller.filterBooks(null, null, null, null, null);
 
         assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(actual.getBody()).isNull();
+    }
+
+    @Test
+    void filterBooks_passesAllCriteriaToService() {
+        BookResponse book = new BookResponse(1L, "1984", "978-0451524935", 1949,
+                List.of(new AuthorResponse(1L, "George Orwell")));
+        when(bookService.filterBooks(1L, "1984", "978-0451524935", 1949, "Orwell")).thenReturn(List.of(book));
+
+        ResponseEntity<List<BookResponse>> actual = controller.filterBooks(1L, "1984", "978-0451524935", 1949,
+                "Orwell");
+
+        assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(actual.getBody()).containsExactly(book);
     }
 
     @Test
@@ -168,7 +183,7 @@ class BookControllerTest {
 
     @Test
     void updateBook_delegatesToServiceAndReturnsResponse() {
-        BookUpdateRequest request = new BookUpdateRequest();
+        B4BookUpdateRequest request = new B4BookUpdateRequest();
         request.setTitle("1984");
         request.setIsbn("978-0451524935");
         request.setPublishedYear(1949);

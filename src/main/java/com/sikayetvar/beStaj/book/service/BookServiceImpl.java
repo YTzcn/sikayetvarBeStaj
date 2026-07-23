@@ -1,9 +1,9 @@
 package com.sikayetvar.beStaj.book.service;
 
 import com.sikayetvar.beStaj.book.dto.AuthorResponse;
-import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
+import com.sikayetvar.beStaj.book.dto.B1BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
-import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
+import com.sikayetvar.beStaj.book.dto.B4BookUpdateRequest;
 import com.sikayetvar.beStaj.book.entity.Author;
 import com.sikayetvar.beStaj.book.entity.Book;
 import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
@@ -28,7 +28,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookResponse createBook(BookCreateRequest request) {
+    public BookResponse createBook(B1BookCreateRequest request) {
         requireIsbnAvailable(request.isbn(), null);
 
         Book book = new Book(request.title(), request.isbn(), request.publishedYear());
@@ -64,18 +64,36 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookResponse> filterBooks(String title, Integer publishedYear) {
+    public List<BookResponse> filterBooks(
+            Long id,
+            String title,
+            String isbn,
+            Integer publishedYear,
+            String authorName
+    ) {
         Specification<Book> spec = null;
+        if (id != null) {
+            spec = combine(spec, BookSpecifications.idEquals(id));
+        }
         if (title != null && !title.isBlank()) {
-            spec = BookSpecifications.titleContains(title);
+            spec = combine(spec, BookSpecifications.titleContains(title));
+        }
+        if (isbn != null && !isbn.isBlank()) {
+            spec = combine(spec, BookSpecifications.isbnEquals(isbn));
         }
         if (publishedYear != null) {
-            Specification<Book> yearSpec = BookSpecifications.publishedYearEquals(publishedYear);
-            spec = (spec == null) ? yearSpec : spec.and(yearSpec);
+            spec = combine(spec, BookSpecifications.publishedYearEquals(publishedYear));
+        }
+        if (authorName != null && !authorName.isBlank()) {
+            spec = combine(spec, BookSpecifications.authorNameContains(authorName));
         }
         return bookRepository.findAll(spec).stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    private static Specification<Book> combine(Specification<Book> spec, Specification<Book> next) {
+        return spec == null ? next : spec.and(next);
     }
 
     @Override
@@ -94,7 +112,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookResponse updateBook(Long id, BookUpdateRequest request) {
+    public BookResponse updateBook(Long id, B4BookUpdateRequest request) {
         Book book = findBookOrThrow(id);
         requireIsbnAvailable(request.getIsbn(), id);
         book.setTitle(request.getTitle());

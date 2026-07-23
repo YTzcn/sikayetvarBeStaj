@@ -1,8 +1,8 @@
 package com.sikayetvar.beStaj.book.service;
 
-import com.sikayetvar.beStaj.book.dto.BookCreateRequest;
+import com.sikayetvar.beStaj.book.dto.B1BookCreateRequest;
 import com.sikayetvar.beStaj.book.dto.BookResponse;
-import com.sikayetvar.beStaj.book.dto.BookUpdateRequest;
+import com.sikayetvar.beStaj.book.dto.B4BookUpdateRequest;
 import com.sikayetvar.beStaj.book.entity.Author;
 import com.sikayetvar.beStaj.book.entity.Book;
 import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
@@ -46,7 +46,7 @@ class BookServiceImplTest {
     @Test
     void createBook_reusesExistingAuthorByName() {
         Author existingAuthor = new Author("Yaşar Kemal");
-        BookCreateRequest request = new BookCreateRequest(
+        B1BookCreateRequest request = new B1BookCreateRequest(
                 "İnce Memed", "978-0000000001", 1955, List.of("Yaşar Kemal"));
 
         when(bookRepository.findByIsbn("978-0000000001")).thenReturn(Optional.empty());
@@ -63,7 +63,7 @@ class BookServiceImplTest {
 
     @Test
     void createBook_createsNewAuthorWhenNotFound() {
-        BookCreateRequest request = new BookCreateRequest(
+        B1BookCreateRequest request = new B1BookCreateRequest(
                 "Yeni Kitap", null, null, List.of("Yeni Yazar"));
 
         when(authorRepository.findByNameIgnoreCase("Yeni Yazar")).thenReturn(Optional.empty());
@@ -78,7 +78,7 @@ class BookServiceImplTest {
 
     @Test
     void createBook_throwsWhenIsbnAlreadyExists() {
-        BookCreateRequest request = new BookCreateRequest(
+        B1BookCreateRequest request = new B1BookCreateRequest(
                 "İkinci Kopya", "978-0000000001", 2020, List.of("Yazar"));
 
         when(bookRepository.findByIsbn("978-0000000001"))
@@ -130,10 +130,50 @@ class BookServiceImplTest {
         Book book = new Book("Simyacı", "978-0000000009", 1988);
         when(bookRepository.findAll(ArgumentMatchers.<Specification<Book>>any())).thenReturn(List.of(book));
 
-        List<BookResponse> responses = bookService.filterBooks("simya", 1988);
+        List<BookResponse> responses = bookService.filterBooks(null, "simya", null, 1988, null);
 
         assertThat(responses).hasSize(1);
         assertThat(responses.getFirst().title()).isEqualTo("Simyacı");
+    }
+
+    @Test
+    void filterBooks_appliesIdCriterion() {
+        Book book = new Book("Simyacı", "978-0000000009", 1988);
+        when(bookRepository.findAll(ArgumentMatchers.<Specification<Book>>any())).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.filterBooks(1L, null, null, null, null);
+
+        assertThat(responses).hasSize(1);
+    }
+
+    @Test
+    void filterBooks_appliesIsbnCriterion() {
+        Book book = new Book("Simyacı", "978-0000000009", 1988);
+        when(bookRepository.findAll(ArgumentMatchers.<Specification<Book>>any())).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.filterBooks(null, null, "978-0000000009", null, null);
+
+        assertThat(responses).hasSize(1);
+    }
+
+    @Test
+    void filterBooks_appliesAuthorNameCriterion() {
+        Book book = new Book("Simyacı", "978-0000000009", 1988);
+        when(bookRepository.findAll(ArgumentMatchers.<Specification<Book>>any())).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.filterBooks(null, null, null, null, "Paulo");
+
+        assertThat(responses).hasSize(1);
+    }
+
+    @Test
+    void filterBooks_returnsAllBooksWhenNoCriteriaGiven() {
+        Book book = new Book("Simyacı", "978-0000000009", 1988);
+        when(bookRepository.findAll((Specification<Book>) null)).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.filterBooks(null, null, null, null, null);
+
+        assertThat(responses).hasSize(1);
     }
 
     @Test
@@ -169,7 +209,7 @@ class BookServiceImplTest {
     void updateBook_replacesFieldsAndAuthors() {
         Book book = new Book("Eski Başlık", "978-0000000004", 2000);
         book.addAuthor(new Author("Eski Yazar"));
-        BookUpdateRequest request = updateRequest(
+        B4BookUpdateRequest request = updateRequest(
                 "Yeni Başlık", "978-0000000005", 2010, List.of("Yeni Yazar"));
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -186,7 +226,7 @@ class BookServiceImplTest {
 
     @Test
     void updateBook_throwsWhenNotFound() {
-        BookUpdateRequest request = updateRequest("Başlık", null, null, List.of("Yazar"));
+        B4BookUpdateRequest request = updateRequest("Başlık", null, null, List.of("Yazar"));
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookService.updateBook(99L, request))
@@ -196,7 +236,7 @@ class BookServiceImplTest {
     @Test
     void updateBook_throwsWhenIsbnBelongsToAnotherBook() {
         Book book = new Book("Kitap", "978-0000000006", 2000);
-        BookUpdateRequest request = updateRequest(
+        B4BookUpdateRequest request = updateRequest(
                 "Kitap", "978-0000000007", 2000, List.of("Yazar"));
         Book otherBook = new Book("Başka Kitap", "978-0000000007", 2001);
 
@@ -207,9 +247,9 @@ class BookServiceImplTest {
                 .isInstanceOf(DuplicateIsbnException.class);
     }
 
-    private static BookUpdateRequest updateRequest(String title, String isbn, Integer publishedYear,
+    private static B4BookUpdateRequest updateRequest(String title, String isbn, Integer publishedYear,
                                                      List<String> authorNames) {
-        BookUpdateRequest request = new BookUpdateRequest();
+        B4BookUpdateRequest request = new B4BookUpdateRequest();
         request.setTitle(title);
         request.setIsbn(isbn);
         request.setPublishedYear(publishedYear);

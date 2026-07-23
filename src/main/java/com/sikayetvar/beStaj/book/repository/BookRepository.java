@@ -17,9 +17,15 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
     @Query("SELECT b FROM Book b WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%'))")
     List<Book> searchByTitle(@Param("title") String title);
 
-    @Query(value = "SELECT DISTINCT b.* FROM books b "
-            + "JOIN book_authors ba ON ba.book_id = b.id "
-            + "JOIN authors a ON a.id = ba.author_id "
-            + "WHERE LOWER(a.name) = LOWER(:authorName)", nativeQuery = true)
+    @Query(
+            value = """
+                    SELECT DISTINCT b.*
+                    FROM books b
+                    JOIN book_authors ba ON ba.book_id = b.id
+                    JOIN authors a ON a.id = ba.author_id
+                    WHERE LOWER(a.name) = LOWER(:authorName)
+                    """,
+            nativeQuery = true
+    )
     List<Book> findByAuthorNameNative(@Param("authorName") String authorName);
 }

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
-public record BookCreateRequest(
+public record B1BookCreateRequest(
         @NotBlank(message = "Kitap başlığı boş olamaz")
         String title,
 

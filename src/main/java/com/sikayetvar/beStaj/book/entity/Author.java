@@ -8,13 +8,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "authors")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Author {
 
@@ -23,6 +26,7 @@ public class Author {
     @Column(name = "id")
     private Long id;
 
+    @Setter
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -31,21 +35,5 @@ public class Author {
 
     public Author(String name) {
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<Book> getBooks() {
-        return books;
     }
 }

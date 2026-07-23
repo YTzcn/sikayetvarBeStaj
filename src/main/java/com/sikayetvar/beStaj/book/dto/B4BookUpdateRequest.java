@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BookUpdateRequest {
+public class B4BookUpdateRequest {
 
     @NotBlank(message = "Kitap başlığı boş olamaz")
     private String title;
