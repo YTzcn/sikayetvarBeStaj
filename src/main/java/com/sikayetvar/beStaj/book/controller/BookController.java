@@ -46,6 +46,26 @@ public class BookController {
         return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
     }
 
+    @GetMapping("/search/author")
+    public ResponseEntity<List<BookResponse>> searchBooksByAuthor(@RequestParam String name) {
+        List<BookResponse> books = bookService.searchBooksByAuthor(name);
+        return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<BookResponse>> filterBooks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Integer publishedYear) {
+        List<BookResponse> books = bookService.filterBooks(title, publishedYear);
+        return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/search/published-after")
+    public ResponseEntity<List<BookResponse>> booksPublishedAfter(@RequestParam Integer year) {
+        List<BookResponse> books = bookService.findBooksPublishedAfter(year);
+        return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
+    }
+
     @GetMapping("/{id}")
     public BookResponse getBook(@PathVariable Long id) {
         return bookService.getBookById(id);

@@ -14,6 +14,12 @@ public interface BookService {
 
     List<BookResponse> searchBooksByTitle(String title);
 
+    List<BookResponse> searchBooksByAuthor(String authorName);
+
+    List<BookResponse> filterBooks(String title, Integer publishedYear);
+
+    List<BookResponse> findBooksPublishedAfter(Integer year);
+
     BookResponse getBookById(Long id);
 
     BookResponse updateBook(Long id, BookUpdateRequest request);

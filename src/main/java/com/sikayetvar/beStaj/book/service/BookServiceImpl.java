@@ -9,8 +9,10 @@ import com.sikayetvar.beStaj.book.entity.Book;
 import com.sikayetvar.beStaj.book.exception.DuplicateIsbnException;
 import com.sikayetvar.beStaj.book.repository.AuthorRepository;
 import com.sikayetvar.beStaj.book.repository.BookRepository;
+import com.sikayetvar.beStaj.book.repository.BookSpecifications;
 import com.sikayetvar.beStaj.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +50,38 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     public List<BookResponse> searchBooksByTitle(String title) {
         return bookRepository.searchByTitle(title).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookResponse> searchBooksByAuthor(String authorName) {
+        return bookRepository.findByAuthorNameNative(authorName).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookResponse> filterBooks(String title, Integer publishedYear) {
+        Specification<Book> spec = null;
+        if (title != null && !title.isBlank()) {
+            spec = BookSpecifications.titleContains(title);
+        }
+        if (publishedYear != null) {
+            Specification<Book> yearSpec = BookSpecifications.publishedYearEquals(publishedYear);
+            spec = (spec == null) ? yearSpec : spec.and(yearSpec);
+        }
+        return bookRepository.findAll(spec).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookResponse> findBooksPublishedAfter(Integer year) {
+        return bookRepository.findBooksPublishedAfter(year).stream()
                 .map(this::toResponse)
                 .toList();
     }

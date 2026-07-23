@@ -12,8 +12,10 @@ import com.sikayetvar.beStaj.common.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -110,6 +112,39 @@ class BookServiceImplTest {
 
         assertThat(responses).hasSize(1);
         assertThat(responses.getFirst().title()).isEqualTo("Kürk Mantolu Madonna");
+    }
+
+    @Test
+    void searchBooksByAuthor_mapsMatchingBooks() {
+        Book book = new Book("İnce Memed", "978-0000000008", 1955);
+        when(bookRepository.findByAuthorNameNative("Yaşar Kemal")).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.searchBooksByAuthor("Yaşar Kemal");
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.getFirst().title()).isEqualTo("İnce Memed");
+    }
+
+    @Test
+    void filterBooks_combinesTitleAndPublishedYearCriteria() {
+        Book book = new Book("Simyacı", "978-0000000009", 1988);
+        when(bookRepository.findAll(ArgumentMatchers.<Specification<Book>>any())).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.filterBooks("simya", 1988);
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.getFirst().title()).isEqualTo("Simyacı");
+    }
+
+    @Test
+    void findBooksPublishedAfter_mapsMatchingBooks() {
+        Book book = new Book("Şeker Portakalı", "978-0000000010", 1968);
+        when(bookRepository.findBooksPublishedAfter(1960)).thenReturn(List.of(book));
+
+        List<BookResponse> responses = bookService.findBooksPublishedAfter(1960);
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.getFirst().title()).isEqualTo("Şeker Portakalı");
     }
 
     @Test
