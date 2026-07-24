@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -33,13 +32,14 @@ public class BookController {
      * B1: Yeni bir kitap kaydı oluşturur
      *
      * @param request Oluşturulacak kitabın bilgileri
-     * @return Oluşturulan kitap, Location header'ında kaydın path'i ile birlikte
+     * @return Oluşturulan kitap, BookId header'ında kaydın id değeri ile birlikte
      */
     @PostMapping
     public ResponseEntity<BookResponse> createBook(@Valid @RequestBody B1BookCreateRequest request) {
         BookResponse created = bookService.createBook(request);
-        URI location = URI.create("/api/books/" + created.id());
-        return ResponseEntity.created(location).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("BookId", created.id().toString())
+                .body(created);
     }
 
     /**
@@ -134,7 +134,7 @@ public class BookController {
     }
 
     /**
-     * B5: Verilen id değerine sahip kitabı siler
+     * B5: Verilen id değerine sahip kitabı siler (soft delete, kayıt fiziksel olarak silinmez)
      *
      * @param id Silinecek kitabın id değeri
      */

@@ -72,21 +72,16 @@ public class BookServiceImpl implements BookService {
             String authorName
     ) {
         Specification<Book> spec = null;
-        if (id != null) {
+        if (id != null)
             spec = combine(spec, BookSpecifications.idEquals(id));
-        }
-        if (title != null && !title.isBlank()) {
+        if (title != null && !title.isBlank())
             spec = combine(spec, BookSpecifications.titleContains(title));
-        }
-        if (isbn != null && !isbn.isBlank()) {
+        if (isbn != null && !isbn.isBlank())
             spec = combine(spec, BookSpecifications.isbnEquals(isbn));
-        }
-        if (publishedYear != null) {
+        if (publishedYear != null)
             spec = combine(spec, BookSpecifications.publishedYearEquals(publishedYear));
-        }
-        if (authorName != null && !authorName.isBlank()) {
+        if (authorName != null && !authorName.isBlank())
             spec = combine(spec, BookSpecifications.authorNameContains(authorName));
-        }
         return bookRepository.findAll(spec).stream()
                 .map(this::toResponse)
                 .toList();
@@ -126,10 +121,8 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public void deleteBook(Long id) {
-        if (!bookRepository.existsById(id)) {
-            throw new ResourceNotFoundException("kitap", id);
-        }
-        bookRepository.deleteById(id);
+        Book book = findBookOrThrow(id);
+        book.delete();
     }
 
     private Book findBookOrThrow(Long id) {
@@ -137,9 +130,8 @@ public class BookServiceImpl implements BookService {
     }
 
     private void requireIsbnAvailable(String isbn, Long currentBookId) {
-        if (isbn == null) {
+        if (isbn == null)
             return;
-        }
         bookRepository.findByIsbn(isbn)
                 .filter(existing -> currentBookId == null || !Objects.equals(existing.getId(), currentBookId))
                 .ifPresent(existing -> {

@@ -258,17 +258,19 @@ class BookServiceImplTest {
     }
 
     @Test
-    void deleteBook_removesExistingBook() {
-        when(bookRepository.existsById(1L)).thenReturn(true);
+    void deleteBook_marksBookAsDeletedWithoutPhysicalDeletion() {
+        Book book = new Book("Kitap", "978-0000000011", 2000);
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
 
         bookService.deleteBook(1L);
 
-        verify(bookRepository).deleteById(1L);
+        assertThat(book.isDeleted()).isTrue();
+        verify(bookRepository, never()).deleteById(any());
     }
 
     @Test
     void deleteBook_throwsWhenNotFound() {
-        when(bookRepository.existsById(99L)).thenReturn(false);
+        when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookService.deleteBook(99L))
                 .isInstanceOf(ResourceNotFoundException.class);

@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.net.URI;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +43,7 @@ class BookControllerTest {
 
         assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(actual.getBody()).isEqualTo(expected);
-        assertThat(actual.getHeaders().getLocation()).isEqualTo(URI.create("/api/books/1"));
+        assertThat(actual.getHeaders().getFirst("BookId")).isEqualTo("1");
     }
 
     @Test

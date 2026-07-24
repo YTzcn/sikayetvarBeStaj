@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +23,8 @@ import java.util.Set;
 @Table(name = "books")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+// findById, findByIsbn, JPQL/Specification/CriteriaBuilder sorgularının hepsine otomatik uygulanır (native query hariç)
+@SQLRestriction("deleted = false")
 public class Book {
 
     @Id
@@ -49,6 +52,9 @@ public class Book {
     )
     private Set<Author> authors = new HashSet<>();
 
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
+
     public Book(String title, String isbn, Integer publishedYear) {
         this.title = title;
         this.isbn = isbn;
@@ -57,5 +63,9 @@ public class Book {
 
     public void addAuthor(Author author) {
         authors.add(author);
+    }
+
+    public void delete() {
+        this.deleted = true;
     }
 }
