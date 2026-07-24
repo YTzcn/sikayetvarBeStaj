@@ -25,6 +25,7 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
                     JOIN authors a ON a.id = ba.author_id
                     WHERE LOWER(a.name) = LOWER(:authorName)
                     AND b.deleted = false
+                    AND a.deleted = false
                     """,
             nativeQuery = true
     )

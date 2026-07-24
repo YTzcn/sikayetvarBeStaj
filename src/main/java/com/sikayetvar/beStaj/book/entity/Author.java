@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +20,7 @@ import java.util.Set;
 @Table(name = "authors")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("deleted = false")
 public class Author {
 
     @Id
@@ -33,7 +35,14 @@ public class Author {
     @ManyToMany(mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
 
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
+
     public Author(String name) {
         this.name = name;
+    }
+
+    public void delete() {
+        this.deleted = true;
     }
 }
